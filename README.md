@@ -2,7 +2,11 @@
 	## Virtual Environment Set Up
 
 		Python virtual environment created via venv. 
-		Virtual environment named *lostSailor_env*. 
+		Virtual environment named *lostSailor_env*.
+
+		Virtual Environment start up (you always forget): source lostSailor_env/bin/activate
+		Virt env shutdown: deactivate
+
 		Packages installed:
 			numpy
 			scipy
