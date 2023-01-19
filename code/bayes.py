@@ -12,7 +12,7 @@ import cv2 as cv
 # Assign constants (not trully immutable, safer to place in a separate file)
 MAP_FILE = '../resources/cape_python.png'
 
-# SA => Search Area 
+# SA => Search Area, 50 x 50 pixels in size.
 SA1_CORNERS = (130, 265, 180, 315) # (Upper Left-X, UL-Y, Lower Right-X, LR-Y)
 SA2_CORNERS = (80, 255, 130, 305) # (UL-X, UL-Y, LR-X, LR-Y)
 SA3_CORNERS = (105, 205, 155, 255) # (UL-X, UL-Y, LR-X, LR-Y)
@@ -56,6 +56,8 @@ class Search():
             print(f"Prior probabilites do not sum to 100%, please revise at {self.name}", file=sys.stderr)
             sys.exit(1)
 
+        # To be set by calc_search_effectiveness()
+        # sep => search effectiveness probability
         self.sep1 = 0
         self.sep2 = 0
         self.sep3 = 0
@@ -96,15 +98,25 @@ class Search():
     def sailor_final_location(self, num_search_areas): 
         """sailor_final_location() takes in the number of search areas and returns the actual x, y location of the missing sailors, 
         because this is a game where we need to set the answer before the game can begin.
-        I'm a little suprised this method isn't called in __init__... but maybe I'am not thinking in a Pythonic style."""
+        I'm a little suprised this method isn't called in __init__... but maybe I'am not thinking in a Pythonic style.
+        An improved version of this game would simulate how a sailor would change position over time, 
+        so the current static position set by this method is more like setting a location of a sunken ship or submarine."""
         
         #Find sailor coordinates with respect to any Search Array subarray.
-        self.sailor_actual[0] = np.random.choice(self.sa1.shape[1], 1)
-        self.sailor_actual[1] = np.random.choice(self.sa1.shape[0], 1)
+        # np.shape(self.SA1) -> (50,50,3)
+        self.sailor_actual[0] = np.random.choice(self.sa1.shape[1], 1) # shape[1] chooses columns, 1 chooses a single element. 
+        self.sailor_actual[1] = np.random.choice(self.sa1.shape[0], 1) # shape[0] chooses rows, 1 chooses a single element.
 
+        #Randomly select one of the search areas as the search area the lost sailor is actually in.
+        """The triangular distribution is typically used as a subjective description of a population for which there is only limited sample data, 
+        and especially in cases where the relationship between variables is known but data is scarce (possibly because of the high cost of collection). 
+        It is based on a knowledge of the minimum and maximum and an "inspired guess"[3] as to the modal value. 
+        For these reasons, the triangle distribution has been called a "lack of knowledge" distribution.""" 
         area = int(random.triangular(1, num_search_areas + 1))
 
+        # Note that this variable "area" is a local variable in Python and is not accessible to other methods in class Search.
         if area == 1:
+            #sailor_actual[0/1] will hold a value of 0 - 49. 
             x = self.sailor_actual[0] + SA1_CORNERS[0]
             y = self.sailor_actual[1] + SA1_CORNERS[1]
             self.area_actual = 1
@@ -117,3 +129,34 @@ class Search():
             y = self.sailor_actual[1] + SA3_CORNERS[1]
             self.area_actual = 3
         return x, y
+
+    def calc_search_effectiveness(self):
+        """Set Decimal search effectiveness value per search area. 
+        I get the sense that this method and the previous will be called in a script of member method to set up the game, 
+        but not for game play."""
+        
+        self.sep1 = random.uniform(0.2, 0.9)
+        self.sep2 = random.uniform(0.2, 0.9)
+        self.sep3 = random.uniform(0.2, 0.9)
+
+    def conduct_search(self, area_num, area_array, effectiveness_prob):
+        """Return search results and list of searched coordinates."""
+        local_y_range = range(area_array.shape[0])
+        local_x_range = range(area_array.shape[1])
+
+        # Make a 2-D array of search coordinates, put coords in list, and shuffle order.
+        coords = list(itertools.product(local_x_range, local_y_range))
+        random.shuffle(coords)
+        
+        # Shrink coords list to only search as much area as we can effectively search. Recall that we are operating with an effectiveness modifier, 
+        # where a stormy sea reduces how much of an area we can effectively search. 
+        coords = coords[:int((len(coords) * effectiveness_prob))]
+
+        # Copy predetermined location of target to local variable.
+        loc_actual = (self.sailor_actual[0], self.sailor_actual[1])
+
+        # Search for match between area we could search and the actual location. 
+        if area_num == self.area_actual and loc_actual in coords:
+            return f"Found in Area {area_num}" , coords 
+        else:
+            return "Not Found", coords
