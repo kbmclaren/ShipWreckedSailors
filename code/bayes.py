@@ -149,7 +149,8 @@ class Search():
         random.shuffle(coords)
         
         # Shrink coords list to only search as much area as we can effectively search. Recall that we are operating with an effectiveness modifier, 
-        # where a stormy sea reduces how much of an area we can effectively search. 
+        # where a stormy sea reduces how much of an area we can effectively search.
+        # If L is a list, the expression L [ start : stop : step ] returns the portion of the list from index start to index stop, at a step size step. 
         coords = coords[:int((len(coords) * effectiveness_prob))]
 
         # Copy predetermined location of target to local variable.
