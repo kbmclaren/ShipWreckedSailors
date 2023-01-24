@@ -6,7 +6,7 @@
 		First, I copy his code, parsing the meaning myself as I go, and then read his explanation.
 		I also end up writing little tests throughout the code to make sure that the given code does what it is supposed to.
 		This co-writing of code is giving me exposure to how Vaughn uses the imported libraries, native Python packags, etc.  
-		So I get practice with python and the application of Baye's Theorem.  
+		More importantly, I get to study Vaughn's application of the Baye's Theorem to a gamified-real problem.  
 
 	## Virtual Environment Set Up
 
@@ -16,7 +16,7 @@
 		Virtual Environment start up (you always forget): source lostSailor_env/bin/activate
 		Virt env shutdown: deactivate
 
-		Packages installed:
+		Packages installed in environment:
 			numpy
 			scipy
 			matplotlib
