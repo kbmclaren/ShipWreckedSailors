@@ -29,11 +29,12 @@
 
 	## Project Files
 		
-		code/
-			bayes.py
 		lostSailors_env/
-		README.md
+		module/
+			bayes.py
 		resources/
 			cape_python.png
+		README.md
+		requirements.txt
 
 			
