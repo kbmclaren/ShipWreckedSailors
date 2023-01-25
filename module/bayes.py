@@ -115,8 +115,8 @@ class Search():
         cv.waitKey(500)
 
     def sailor_final_location(self, num_search_areas): 
-        """sailor_final_location() takes in the number of search areas and returns the actual x, y location of the missing sailors, 
-        because this is a game where we need to set the answer before the game can begin.
+        """sailor_final_location() takes in the number of search areas and returns the actual x, y location of the missing sailors""" 
+        """because this is a game where we need to set the answer before the game can begin.
         I'm a little suprised this method isn't called in __init__... but maybe I'am not thinking in a Pythonic style.
         An improved version of this game would simulate how a sailor would change position over time, 
         so the current static position set by this method is more like setting a location of a sunken ship or submarine."""
@@ -199,9 +199,10 @@ def chooseZero():
 def chooseOne( SearchObject):
     results_1, coords_1 = SearchObject.conduct_search(1, SearchObject.sa1, SearchObject.sep1)
     results_2, coords_2 = SearchObject.conduct_search(1, SearchObject.sa1, SearchObject.sep1)
-    SearchObject.sep1 = (len(set(coords_1 + coords_2))) / (len(SearchObject.sa1)**2)
+    SearchObject.sep1 = (len(set(coords_1 + coords_2))) / (len(SearchObject.sa1)**2) #As a reminder, set() drops duplicates here.
     SearchObject.sep2 = 0 #The area was not searched so we don't want to update previous prob that sailor would be found. 
     SearchObject.sep3 = 0
+    return (results_1, coords_1, results_2, coords_2)
 
 def chooseTwo( SearchObject):
     results_1, coords_1 = SearchObject.conduct_search(2, SearchObject.sa2, SearchObject.sep2)
@@ -209,6 +210,7 @@ def chooseTwo( SearchObject):
     SearchObject.sep1 = 0
     SearchObject.sep2 = (len(set(coords_1 + coords_2))) / (len(SearchObject.sa2)**2)
     SearchObject.sep3 = 0
+    return (results_1, coords_1, results_2, coords_2)
 
 def chooseThree( SearchObject):
     results_1, coords_1 = SearchObject.conduct_search(3, SearchObject.sa3, SearchObject.sep3)
@@ -216,23 +218,28 @@ def chooseThree( SearchObject):
     SearchObject.sep1 = 0
     SearchObject.sep2 = 0
     SearchObject.sep3 = (len(set(coords_1 + coords_2))) / (len(SearchObject.sa3)**2)
+    return (results_1, coords_1, results_2, coords_2)
 
 def chooseFour( SearchObject):
     results_1, coords_1 = SearchObject.conduct_search(1, SearchObject.sa1, SearchObject.sep1)
     results_2, coords_2 = SearchObject.conduct_search(2, SearchObject.sa2, SearchObject.sep2)
     SearchObject.sep3 = 0
+    return (results_1, coords_1, results_2, coords_2)
 
 def chooseFive( SearchObject):
     results_1, coords_1 = SearchObject.conduct_search(1, SearchObject.sa1, SearchObject.sep1)
     results_2, coords_2 = SearchObject.conduct_search(3, SearchObject.sa3, SearchObject.sep3)
     SearchObject.sep2 = 0
+    return (results_1, coords_1, results_2, coords_2)
     
 def chooseSix( SearchObject):
     results_1, coords_1 = SearchObject.conduct_search(2, SearchObject.sa2, SearchObject.sep2)
     results_2, coords_2 = SearchObject.conduct_search(3, SearchObject.sa3, SearchObject.sep3)
     SearchObject.sep1 = 0
+    return (results_1, coords_1, results_2, coords_2)
 
-def chooseSeven( SearchObject):
+def chooseSeven():
+    """I need to better understand what happens to the original app object."""
     main()
 
 def chooseInvalid():
@@ -248,7 +255,6 @@ def main():
     print("\nInitial Target (P) Probabilities:")
     print(f"P1 = {app.p1:.3f}, P2 = {app.p2:.3f}, P3 = {app.p3:.3f}")
     
-    # I don't like setting this variable here...
     search_num = 1
     while True: 
         app.calc_search_effectiveness() # set randomly to simulate variable sea conditions
@@ -268,9 +274,21 @@ def main():
         }
 
         choice = input("Choice: ")
-        if choice in choiceDict: 
+        if choice in choiceDict and choice != "7": 
+            search_settings_by_choice = choiceDict.get(choice)
+            holdMyTuple = search_settings_by_choice(app)
+        elif choice in choiceDict and choice == "7":
             search_settings_by_choice = choiceDict.get(choice)
             search_settings_by_choice(app)
         else:
             chooseInvalid()
             continue
+
+        app.revise_target_probs()
+
+        print(f"/nSearch {search_num} Results 1 = {holdMyTuple[0]}", file=sys.stderr)
+        print(f"/nSearch {search_num} Results 2 = {holdMyTuple[2]}", file=sys.stderr)
+        print(f"Search {search_num} Effectiveness (E): ")
+        print(f"E1 = ")
+
+    
