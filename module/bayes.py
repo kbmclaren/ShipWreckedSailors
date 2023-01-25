@@ -196,7 +196,7 @@ class Search():
 def chooseZero():
     sys.exit()
 
-def chooseOne( SearchObject):
+def chooseOne( SearchObject: Search) -> tuple:
     results_1, coords_1 = SearchObject.conduct_search(1, SearchObject.sa1, SearchObject.sep1)
     results_2, coords_2 = SearchObject.conduct_search(1, SearchObject.sa1, SearchObject.sep1)
     SearchObject.sep1 = (len(set(coords_1 + coords_2))) / (len(SearchObject.sa1)**2) #As a reminder, set() drops duplicates here.
@@ -205,7 +205,7 @@ def chooseOne( SearchObject):
     #return ((results_1, coords_1, results_2, coords_2 ), SearchObject.sep1, SearchObject.sep2, SearchObject.sep3)
     return results_1, coords_1, results_2, coords_2
 
-def chooseTwo( SearchObject):
+def chooseTwo( SearchObject: Search) -> tuple:
     results_1, coords_1 = SearchObject.conduct_search(2, SearchObject.sa2, SearchObject.sep2)
     results_2, coords_2 = SearchObject.conduct_search(2, SearchObject.sa2, SearchObject.sep2)
     SearchObject.sep1 = 0
@@ -214,7 +214,7 @@ def chooseTwo( SearchObject):
     #return ((results_1, coords_1, results_2, coords_2 ), SearchObject.sep1, SearchObject.sep2, SearchObject.sep3)
     return results_1, coords_1, results_2, coords_2
 
-def chooseThree( SearchObject):
+def chooseThree( SearchObject: Search) -> tuple:
     results_1, coords_1 = SearchObject.conduct_search(3, SearchObject.sa3, SearchObject.sep3)
     results_2, coords_2 = SearchObject.conduct_search(3, SearchObject.sa3, SearchObject.sep3)
     SearchObject.sep1 = 0
@@ -223,21 +223,21 @@ def chooseThree( SearchObject):
     #return ((results_1, coords_1, results_2, coords_2 ), SearchObject.sep1, SearchObject.sep2, SearchObject.sep3)
     return results_1, coords_1, results_2, coords_2
 
-def chooseFour( SearchObject):
+def chooseFour( SearchObject: Search) -> tuple:
     results_1, coords_1 = SearchObject.conduct_search(1, SearchObject.sa1, SearchObject.sep1)
     results_2, coords_2 = SearchObject.conduct_search(2, SearchObject.sa2, SearchObject.sep2)
     SearchObject.sep3 = 0
     #return ((results_1, coords_1, results_2, coords_2), SearchObject.sep1, SearchObject.sep2, SearchObject.sep3)
     return results_1, coords_1, results_2, coords_2
 
-def chooseFive( SearchObject):
+def chooseFive( SearchObject: Search) -> tuple:
     results_1, coords_1 = SearchObject.conduct_search(1, SearchObject.sa1, SearchObject.sep1)
     results_2, coords_2 = SearchObject.conduct_search(3, SearchObject.sa3, SearchObject.sep3)
     SearchObject.sep2 = 0
     #return ((results_1, coords_1, results_2, coords_2), SearchObject.sep1, SearchObject.sep2, SearchObject.sep3)
     return results_1, coords_1, results_2, coords_2
     
-def chooseSix( SearchObject):
+def chooseSix( SearchObject: Search) -> tuple:
     results_1, coords_1 = SearchObject.conduct_search(2, SearchObject.sa2, SearchObject.sep2)
     results_2, coords_2 = SearchObject.conduct_search(3, SearchObject.sa3, SearchObject.sep3)
     SearchObject.sep1 = 0
