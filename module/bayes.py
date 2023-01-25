@@ -23,7 +23,7 @@ def draw_menu(search_num):
         """Print menu of choices for conducting area searches."""
         print(f'/nSearch {search_num}')
         print(
-            '''
+            """
             Choose next areas to search:
 
             0 - Quit
@@ -34,7 +34,7 @@ def draw_menu(search_num):
             5 - Search Areas 1 & 3
             6 - Search Areas 2 & 3 
             7 - Start Over
-            '''
+            """
             )
 
 class Search():
@@ -71,18 +71,17 @@ class Search():
         self.p1 = 0.2
         self.p2 = 0.5
         self.p3 = 0.3
-        
-        if ( self.p1 + self.p2 + self.p3 ) != 1.0 :
-            print(f"Prior probabilites do not sum to 100%, please revise at {self.name}", file=sys.stderr)
-            sys.exit(1)
 
-        # To be set by calc_search_effectiveness()
+        # Initially set by calc_search_effectiveness()
+        # Then updated indirectly by results of conduct_search() inside the "choose_()" helper functions below.
+        # The choose_() math end up resetting sep values to zero ... 
+        # which works because of the updating revise_target_probablity function needs zeros as the default sep1 value 
+        # so the important probability(p1-3) of finding the sailor doesn't change when you don't search the area.
         # sep => search effectiveness probability
         self.sep1 = 0
         self.sep2 = 0
         self.sep3 = 0
 
-    
     def draw_map(self, last_known):
         """draw_map() takes in the last_known coordinates of the lost sailor"""
 
@@ -194,4 +193,84 @@ class Search():
         self.p2 = (self.p2 * (1 - self.sep2))/denom
         self.p3 = (self.p3 * (1 - self.sep3))/denom
         
+def chooseZero():
+    sys.exit()
+
+def chooseOne( SearchObject):
+    results_1, coords_1 = SearchObject.conduct_search(1, SearchObject.sa1, SearchObject.sep1)
+    results_2, coords_2 = SearchObject.conduct_search(1, SearchObject.sa1, SearchObject.sep1)
+    SearchObject.sep1 = (len(set(coords_1 + coords_2))) / (len(SearchObject.sa1)**2)
+    SearchObject.sep2 = 0 #The area was not searched so we don't want to update previous prob that sailor would be found. 
+    SearchObject.sep3 = 0
+
+def chooseTwo( SearchObject):
+    results_1, coords_1 = SearchObject.conduct_search(2, SearchObject.sa2, SearchObject.sep2)
+    results_2, coords_2 = SearchObject.conduct_search(2, SearchObject.sa2, SearchObject.sep2)
+    SearchObject.sep1 = 0
+    SearchObject.sep2 = (len(set(coords_1 + coords_2))) / (len(SearchObject.sa2)**2)
+    SearchObject.sep3 = 0
+
+def chooseThree( SearchObject):
+    results_1, coords_1 = SearchObject.conduct_search(3, SearchObject.sa3, SearchObject.sep3)
+    results_2, coords_2 = SearchObject.conduct_search(3, SearchObject.sa3, SearchObject.sep3)
+    SearchObject.sep1 = 0
+    SearchObject.sep2 = 0
+    SearchObject.sep3 = (len(set(coords_1 + coords_2))) / (len(SearchObject.sa3)**2)
+
+def chooseFour( SearchObject):
+    results_1, coords_1 = SearchObject.conduct_search(1, SearchObject.sa1, SearchObject.sep1)
+    results_2, coords_2 = SearchObject.conduct_search(2, SearchObject.sa2, SearchObject.sep2)
+    SearchObject.sep3 = 0
+
+def chooseFive( SearchObject):
+    results_1, coords_1 = SearchObject.conduct_search(1, SearchObject.sa1, SearchObject.sep1)
+    results_2, coords_2 = SearchObject.conduct_search(3, SearchObject.sa3, SearchObject.sep3)
+    SearchObject.sep2 = 0
     
+def chooseSix( SearchObject):
+    results_1, coords_1 = SearchObject.conduct_search(2, SearchObject.sa2, SearchObject.sep2)
+    results_2, coords_2 = SearchObject.conduct_search(3, SearchObject.sa3, SearchObject.sep3)
+    SearchObject.sep1 = 0
+
+def chooseSeven( SearchObject):
+    main()
+
+def chooseInvalid():
+    print("/nSorry, but that isn't a valid choice.", file=sys.stderr)
+
+def main(): 
+    """This function sets up the game and feeds the Search object the required data for the self.variables/game set up."""
+    app = Search('Cape_Python')
+    # This next bit annoys me and I want to rewrite to accept user input. But my purpose is to read the book so I'll skip for now. (https://pynative.com/python-check-user-input-is-number-or-string/)
+    app.draw_map(last_known=(160,290))
+    sailor_x, sailor_y = app.sailor_final_location(num_search_areas=3)
+    print("-" * 65)
+    print("\nInitial Target (P) Probabilities:")
+    print(f"P1 = {app.p1:.3f}, P2 = {app.p2:.3f}, P3 = {app.p3:.3f}")
+    
+    # I don't like setting this variable here...
+    search_num = 1
+    while True: 
+        app.calc_search_effectiveness()
+        draw_menu(search_num)
+
+        #Unable to use match-case structure since restricted to python 3.8.5 ... maybe.
+        #Use alternative to long, unreadable if, elif, else structure.
+        choiceDict = {
+            "0": chooseZero,
+            "1": chooseOne,
+            "2": chooseTwo,
+            "3": chooseThree,
+            "4": chooseFour,
+            "5": chooseFive, 
+            "6": chooseSix,
+            "7": chooseSeven
+        }
+
+        choice = input("Choice: ")
+        if choice in choiceDict: 
+            search_settings_by_choice = choiceDict.get(choice)
+            search_settings_by_choice(app)
+        else:
+            chooseInvalid()
+            continue
