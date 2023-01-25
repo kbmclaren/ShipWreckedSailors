@@ -75,9 +75,9 @@ class Search():
         # Initially set by calc_search_effectiveness()
         # Then updated indirectly by results of conduct_search() inside the "choose_()" helper functions below.
         # The choose_() math end up resetting sep values to zero ... 
-        # which works because of the updating revise_target_probablity function needs zeros as the default sep1 value 
+        # which works because of the updating revise_target_probablity function needs zeros as the default sep1-3 value 
         # so the important probability(p1-3) of finding the sailor doesn't change when you don't search the area.
-        # sep => search effectiveness probability
+        # sep => search effectiveness probability, which seems a misnomer since it is used more like a weight.
         self.sep1 = 0
         self.sep2 = 0
         self.sep3 = 0
@@ -147,7 +147,7 @@ class Search():
             x = self.sailor_actual[0] + SA3_CORNERS[0]
             y = self.sailor_actual[1] + SA3_CORNERS[1]
             self.area_actual = 3
-        return x, y
+        return (x, y)
 
     def calc_search_effectiveness(self):
         """Set Decimal search effectiveness value per search area. 
@@ -182,8 +182,8 @@ class Search():
             return "Not Found", coords
 
     def revise_target_probs(self):
-        """Update area target probabilities based on search effectivness.
-        The mechanism of update is most obvious when one of the sep values is 1 (read 100% effective).
+        """Update search area(s) probability of finding sailor, based on search effectivness."""
+        """The mechanism of update is most obvious when one of the sep values is 1 (read 100% effective).
         (1 - sep) means that if you were able to search 100% of the target area and still did not find the target, 
         that target area probability drops to zero."""
         denom = (self.p1 * (1 - self.sep1)) + (self.p2 * (1 - self.sep2)) + (self.p3 * (1 - self.sep3))
@@ -202,7 +202,8 @@ def chooseOne( SearchObject):
     SearchObject.sep1 = (len(set(coords_1 + coords_2))) / (len(SearchObject.sa1)**2) #As a reminder, set() drops duplicates here.
     SearchObject.sep2 = 0 #The area was not searched so we don't want to update previous prob that sailor would be found. 
     SearchObject.sep3 = 0
-    return (results_1, coords_1, results_2, coords_2)
+    #return ((results_1, coords_1, results_2, coords_2 ), SearchObject.sep1, SearchObject.sep2, SearchObject.sep3)
+    return results_1, coords_1, results_2, coords_2
 
 def chooseTwo( SearchObject):
     results_1, coords_1 = SearchObject.conduct_search(2, SearchObject.sa2, SearchObject.sep2)
@@ -210,7 +211,8 @@ def chooseTwo( SearchObject):
     SearchObject.sep1 = 0
     SearchObject.sep2 = (len(set(coords_1 + coords_2))) / (len(SearchObject.sa2)**2)
     SearchObject.sep3 = 0
-    return (results_1, coords_1, results_2, coords_2)
+    #return ((results_1, coords_1, results_2, coords_2 ), SearchObject.sep1, SearchObject.sep2, SearchObject.sep3)
+    return results_1, coords_1, results_2, coords_2
 
 def chooseThree( SearchObject):
     results_1, coords_1 = SearchObject.conduct_search(3, SearchObject.sa3, SearchObject.sep3)
@@ -218,25 +220,29 @@ def chooseThree( SearchObject):
     SearchObject.sep1 = 0
     SearchObject.sep2 = 0
     SearchObject.sep3 = (len(set(coords_1 + coords_2))) / (len(SearchObject.sa3)**2)
-    return (results_1, coords_1, results_2, coords_2)
+    #return ((results_1, coords_1, results_2, coords_2 ), SearchObject.sep1, SearchObject.sep2, SearchObject.sep3)
+    return results_1, coords_1, results_2, coords_2
 
 def chooseFour( SearchObject):
     results_1, coords_1 = SearchObject.conduct_search(1, SearchObject.sa1, SearchObject.sep1)
     results_2, coords_2 = SearchObject.conduct_search(2, SearchObject.sa2, SearchObject.sep2)
     SearchObject.sep3 = 0
-    return (results_1, coords_1, results_2, coords_2)
+    #return ((results_1, coords_1, results_2, coords_2), SearchObject.sep1, SearchObject.sep2, SearchObject.sep3)
+    return results_1, coords_1, results_2, coords_2
 
 def chooseFive( SearchObject):
     results_1, coords_1 = SearchObject.conduct_search(1, SearchObject.sa1, SearchObject.sep1)
     results_2, coords_2 = SearchObject.conduct_search(3, SearchObject.sa3, SearchObject.sep3)
     SearchObject.sep2 = 0
-    return (results_1, coords_1, results_2, coords_2)
+    #return ((results_1, coords_1, results_2, coords_2), SearchObject.sep1, SearchObject.sep2, SearchObject.sep3)
+    return results_1, coords_1, results_2, coords_2
     
 def chooseSix( SearchObject):
     results_1, coords_1 = SearchObject.conduct_search(2, SearchObject.sa2, SearchObject.sep2)
     results_2, coords_2 = SearchObject.conduct_search(3, SearchObject.sa3, SearchObject.sep3)
     SearchObject.sep1 = 0
-    return (results_1, coords_1, results_2, coords_2)
+    #return ((results_1, coords_1, results_2, coords_2), SearchObject.sep1, SearchObject.sep2, SearchObject.sep3,)
+    return results_1, coords_1, results_2, coords_2
 
 def chooseSeven():
     """I need to better understand what happens to the original app object."""
@@ -270,18 +276,27 @@ def main():
             "4": chooseFour,
             "5": chooseFive, 
             "6": chooseSix,
-            "7": chooseSeven
+            "7": chooseSeven #recursive call to main()
         }
 
         choice = input("Choice: ")
         if choice in choiceDict and choice != "7": 
             search_settings_by_choice = choiceDict.get(choice)
+            # Recall that python does not do pass by value/reference, but by assignment. 
+            # So reassign any value changed by the helper funciton.
+            # Not necessary, since the helper functions accept the Search instance and can do work directly on the instance member variables.
+            # holdMyTuple, app.sep1, app.sep2, app.sep3 = search_settings_by_choice(app) 
             holdMyTuple = search_settings_by_choice(app)
+
         elif choice in choiceDict and choice == "7":
-            search_settings_by_choice = choiceDict.get(choice)
-            search_settings_by_choice(app)
+            #search_settings_by_choice = choiceDict.get(choice)
+            #search_settings_by_choice(app)  would be usefull if main() checked for existing Search object and skipped creation if provided.
+            chooseSeven()
+            holdMyTuple = None #unreachable. Leave it, just in case. Cause I'm superstitious.
+
         else:
             chooseInvalid()
+            holdMyTuple = None
             continue
 
         app.revise_target_probs()
@@ -289,6 +304,25 @@ def main():
         print(f"/nSearch {search_num} Results 1 = {holdMyTuple[0]}", file=sys.stderr)
         print(f"/nSearch {search_num} Results 2 = {holdMyTuple[2]}", file=sys.stderr)
         print(f"Search {search_num} Effectiveness (E): ")
-        print(f"E1 = ")
+        print(f"E1 = {app.sep1:.3f}, E2 = {app.sep2:.3f}, E3 = {app.sep3:.3f}")
+
+        # Recall, holdMyTuple = (results_1, coords_1, results_2, coords_2), when it exists...
+        if holdMyTuple[0] == "Not Found" and holdMyTuple[2] ==  "Not Found":
+            print(f'/nNew Target Probabilities (P) for Search {search_num + 1}:')
+            print(f"P1 = {app.p1:.3f}, P2 = {app.p2:.3f}, P3 = {app.p3:.3f}")
+
+        elif holdMyTuple == None:
+            continue #ugh, I don't like this management of the recursive main()/continue outcomes of User choice eval.
+        
+        else: 
+            cv.circle(app.img, (sailor_x, sailor_y), 3, (255, 0, 0), -1)
+            cv.imshow('Search Area', app.img)
+            cv.waitKey(1500)
+            main()
+
+        search_num += 1
+
+if __name__ == '__main__':
+    main()
 
     
