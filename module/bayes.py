@@ -251,7 +251,7 @@ def main():
     # I don't like setting this variable here...
     search_num = 1
     while True: 
-        app.calc_search_effectiveness()
+        app.calc_search_effectiveness() # set randomly to simulate variable sea conditions
         draw_menu(search_num)
 
         #Unable to use match-case structure since restricted to python 3.8.5 ... maybe.
