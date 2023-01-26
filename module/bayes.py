@@ -10,9 +10,14 @@ import random
 import itertools
 import numpy as np
 import cv2 as cv
+import os
 
 # Assign constants (not trully immutable, safer to place in a separate file)
-MAP_FILE = '../resources/cape_python.png'
+abs_path = os.path.dirname(__file__)
+rel_path = "resources/cape_python.png"
+#MAP_FILE = '../../resources/cape_python.png'
+MAP_FILE = '/Users/calebmclaren/learn-algorithms/RealWorldPython/ShipWreckedSailors/resources/cape_python.png'
+#MAP_FILE = os.path.join(abs_path, rel_path)
 
 # SA => Search Area, 50 x 50 pixels in size.
 SA1_CORNERS = (130, 265, 180, 315) # (Upper Left-X, UL-Y, Lower Right-X, LR-Y)
@@ -47,10 +52,10 @@ class Search():
         self.sailor_actual = [0,0] #"Local" (?"relative"?) Coordinates within search area.
         
         #Easy check for the fun of it.
-        cv.imshow('map', self.img)
-        cv.waitKey(0)
+        """cv.imshow('map', self.img)
+        cv.waitKey(0) #To close: select window and press enter.
         cv.destroyAllWindows() # See [ https://www.geeksforgeeks.org/reading-image-opencv-using-python/?ref=lbp ]
-        
+        """
         #Custom error message bc Default error message is confusing.
         if self.img is None:
             print(f"Could not load map file {MAP_FILE}.", file=sys.stderr)
@@ -280,19 +285,21 @@ def main():
         }
 
         choice = input("Choice: ")
-        if choice in choiceDict and choice != "7": 
+        if choice in choiceDict and choice == "0":
+            chooseZero()
+
+        elif choice in choiceDict and choice != "7": 
             search_settings_by_choice = choiceDict.get(choice)
             # Recall that python does not do pass by value/reference, but by assignment. 
             # So reassign any value changed by the helper funciton.
-            # Not necessary, since the helper functions accept the Search instance and can do work directly on the instance member variables.
             # holdMyTuple, app.sep1, app.sep2, app.sep3 = search_settings_by_choice(app) 
+            # Not necessary, since the helper functions accept the Search instance and can do work directly on the instance member variables.
             holdMyTuple = search_settings_by_choice(app)
 
         elif choice in choiceDict and choice == "7":
             #search_settings_by_choice = choiceDict.get(choice)
             #search_settings_by_choice(app)  would be usefull if main() checked for existing Search object and skipped creation if provided.
             chooseSeven()
-            holdMyTuple = None #unreachable. Leave it, just in case. Cause I'm superstitious.
 
         else:
             chooseInvalid()
@@ -307,17 +314,17 @@ def main():
         print(f"E1 = {app.sep1:.3f}, E2 = {app.sep2:.3f}, E3 = {app.sep3:.3f}")
 
         # Recall, holdMyTuple = (results_1, coords_1, results_2, coords_2), when it exists...
-        if holdMyTuple[0] == "Not Found" and holdMyTuple[2] ==  "Not Found":
-            print(f'/nNew Target Probabilities (P) for Search {search_num + 1}:')
-            print(f"P1 = {app.p1:.3f}, P2 = {app.p2:.3f}, P3 = {app.p3:.3f}")
-
-        elif holdMyTuple == None:
+        if holdMyTuple == None:
             continue #ugh, I don't like this management of the recursive main()/continue outcomes of User choice eval.
         
+        elif holdMyTuple[0] == "Not Found" and holdMyTuple[2] ==  "Not Found":
+            print(f'/nNew Target Probabilities (P) for Search {search_num + 1}:')
+            print(f"P1 = {app.p1:.3f}, P2 = {app.p2:.3f}, P3 = {app.p3:.3f}")
+        
         else: 
-            cv.circle(app.img, (sailor_x, sailor_y), 3, (255, 0, 0), -1)
+            cv.circle(app.img, (sailor_x.astype(int), sailor_y.astype(int)), 3, (255, 0, 0), -1)
             cv.imshow('Search Area', app.img)
-            cv.waitKey(1500)
+            cv.waitKey(3500)
             main()
 
         search_num += 1
