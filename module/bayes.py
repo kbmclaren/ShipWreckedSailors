@@ -26,15 +26,15 @@ SA3_CORNERS = (105, 205, 155, 255) # (UL-X, UL-Y, LR-X, LR-Y)
 
 def draw_menu(search_num):
         """Print menu of choices for conducting area searches."""
-        print(f'/nSearch {search_num}')
+        print(f'\nSearch {search_num + 1}')
         print(
             """
             Choose next areas to search:
 
             0 - Quit
-            1 - Search Area 1 twice over
-            2 - Search Areas 2 twice over
-            3 - Search Area 3 twice over
+            1 - Send both search teams to Area 1
+            2 - Send both search teams to Area 2
+            3 - Send both search teams to Area 3
             4 - Search Areas 1 & 2
             5 - Search Areas 1 & 3
             6 - Search Areas 2 & 3 
@@ -254,7 +254,11 @@ def chooseSeven():
     main()
 
 def chooseInvalid():
-    print("/nSorry, but that isn't a valid choice.", file=sys.stderr)
+    print("\nSorry, but that isn't a valid choice.", file=sys.stderr)
+
+def setHurricaneArrival():
+    searchLimit = random.uniform(3, 9)
+    return int(searchLimit)
 
 def main(): 
     """This function sets up the game and feeds the Search object the required data for the self.variables/game set up."""
@@ -262,12 +266,20 @@ def main():
     # This next bit annoys me and I want to rewrite to accept user input. But my purpose is to read the book so I'll skip for now. (https://pynative.com/python-check-user-input-is-number-or-string/)
     app.draw_map(last_known=(160,290))
     sailor_x, sailor_y = app.sailor_final_location(num_search_areas=3)
-    print("-" * 65)
+    sailor_x = sailor_x.item()
+    sailor_y = sailor_y.item()
+
+    #print(type(sailor_x), type(sailor_y) )
+    print("#" * 66)
+    print("-" * 28, "NEW GAME", "-" * 28)
+    print("#" * 66)
     print("\nInitial Target (P) Probabilities:")
     print(f"P1 = {app.p1:.3f}, P2 = {app.p2:.3f}, P3 = {app.p3:.3f}")
     
-    search_num = 1
-    while True: 
+    search_num = 0
+    search_limit = setHurricaneArrival()
+    flag = True
+    while flag: 
         app.calc_search_effectiveness() # set randomly to simulate variable sea conditions
         draw_menu(search_num)
 
@@ -281,7 +293,7 @@ def main():
             "4": chooseFour,
             "5": chooseFive, 
             "6": chooseSix,
-            "7": chooseSeven #recursive call to main()
+            "7": chooseSeven #recursive call to main(
         }
 
         choice = input("Choice: ")
@@ -308,26 +320,44 @@ def main():
 
         app.revise_target_probs()
 
-        print(f"/nSearch {search_num} Results 1 = {holdMyTuple[0]}", file=sys.stderr)
-        print(f"/nSearch {search_num} Results 2 = {holdMyTuple[2]}", file=sys.stderr)
-        print(f"Search {search_num} Effectiveness (E): ")
+       
+        print(f"\nSearch {search_num + 1} Effectiveness (E): ")
         print(f"E1 = {app.sep1:.3f}, E2 = {app.sep2:.3f}, E3 = {app.sep3:.3f}")
+        print(f"\nSearch {search_num + 1} Results 1 = {holdMyTuple[0]}", file=sys.stderr)
+        print(f"Search {search_num + 1} Results 2 = {holdMyTuple[2]}", file=sys.stderr)
+        print(f"#" * 65)
 
         # Recall, holdMyTuple = (results_1, coords_1, results_2, coords_2), when it exists...
         if holdMyTuple == None:
             continue #ugh, I don't like this management of the recursive main()/continue outcomes of User choice eval.
         
         elif holdMyTuple[0] == "Not Found" and holdMyTuple[2] ==  "Not Found":
-            print(f'/nNew Target Probabilities (P) for Search {search_num + 1}:')
+            search_num += 1
+            if search_num == search_limit:
+                flag = False
+                continue
+
+            print(f'\nNew Target Probabilities (P) for Search {search_num + 2}:')
             print(f"P1 = {app.p1:.3f}, P2 = {app.p2:.3f}, P3 = {app.p3:.3f}")
+            
         
         else: 
-            cv.circle(app.img, (sailor_x.astype(int), sailor_y.astype(int)), 3, (255, 0, 0), -1)
+            # Negative thickness fills in the circle with color.
+            # cv.circle(img, center, radius, color[, thickness[, lineType[, shift]]]) -> img
+            print("To continue: Left click on game map, and press enter on keyboard.")
+            cv.circle(app.img, (sailor_x, sailor_y), 3, (255, 0, 0), -1)
             cv.imshow('Search Area', app.img)
-            cv.waitKey(3500)
+            cv.waitKey(0)
             main()
 
-        search_num += 1
+    print(f"""
+    The sailor could not be recovered before a hurricane forced the search to end.
+    You made {search_num} searches before the hurricane arrived.""")
+    main()
+
+    
+
+        
 
 if __name__ == '__main__':
     main()
