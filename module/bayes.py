@@ -5,12 +5,20 @@
 # Last Update: Jan 19, 2023
 # description: This file must apply Baye's Theorem to the missing sailor problem
 
+
 import sys
 import random
 import itertools
 import numpy as np
 import cv2 as cv
 import os
+
+"""from sys import exit
+from random import triangular, uniform, shuffle
+from itertools import product
+from numpy import random as np
+from cv2 import imread, imshow, waitKey, destroyAllWindows, line, putText, rectangle, moveWindow, circle as cv
+from os import path as __path__"""
 
 # Assign constants (not trully immutable, safer to place in a separate file)
 abs_path = os.path.dirname(__file__)
@@ -284,7 +292,7 @@ def main():
         draw_menu(search_num)
 
         #Unable to use match-case structure since restricted to python 3.8.5 ... maybe.
-        #Use alternative to long, unreadable if, elif, else structure.
+        #Use dictionary alternative to long, unreadable if, elif, else structure.
         choiceDict = {
             "0": chooseZero,
             "1": chooseOne,
