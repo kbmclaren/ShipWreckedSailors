@@ -6,13 +6,6 @@
 # description: This file must apply Baye's Theorem to the missing sailor problem, 
 # and extend Lee Vaughn's open source game/solution, as found in his book "Real World Python".
 
-"""import sys
-import random
-import itertools
-import numpy as np
-import cv2 as cv
-import os"""
-
 from sys import exit, stderr
 from random import triangular, uniform, shuffle
 from itertools import product
@@ -22,10 +15,12 @@ from os import path
 
 def set_map_file(resource_rel_path:str ) -> str:
     """Takes a relative path for a resource and returns the absolute path for that resource."""
+    #Using an assert in this manner is borderline input/data validation...not by the user, but by the set up of the files. 
     assert path.exists(resource_rel_path), f"The relative path {resource_rel_path} does not exit."
     abs_path = path.commonpath([__file__, resource_rel_path])
     #abs_path = path.dirname(__file__)
     combo = path.join(abs_path, resource_rel_path)
+    #combo = combo.encode('utf-8') #test
     assert isinstance(combo, str), f"path.join in set_map_file() has not returned a str."
     return combo
 
