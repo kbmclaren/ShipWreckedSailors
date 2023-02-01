@@ -50,3 +50,4 @@
 * [Static Typing](https://betterdatascience.com/python-statically-typed/)
 * [Validation](https://www.easypythondocs.com/validation.html)
 * [Errors and Exceptions](https://docs.python.org/3/tutorial/errors.html)
+* [Formatting: Line Lengths](https://dev.to/adamlombard/vscode-setting-line-lengths-in-the-black-python-code-formatter-1g62#:~:text=A%20few%20notes%20about%20line,119%20characters%20(79%20for%20docstrings))

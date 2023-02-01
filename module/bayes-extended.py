@@ -2,7 +2,7 @@
 # Author: Lee Vaughan with extensions by Caleb M. McLaren
 # email: kbmclaren@gmail.com
 # Start date: Dec. 7th, 2022
-# Last Update: Jan 30, 2023
+# Last Update: Feb 1, 2023
 # description: This file must apply Baye's Theorem to the missing sailor problem, 
 # and extend Lee Vaughn's open source game/solution, as found in his book "Real World Python".
 
@@ -109,7 +109,7 @@ class Search():
         self.sep3 = 0
 
     def draw_map(self, last_known:tuple ) -> None:
-        """draw_map() takes in the last_known coordinates of the lost sailor"""
+        """draw_map() takes in the last_known coordinates of the lost sailor and draws the search map"""
 
         #Overlay Scale indicator
         line(self.img, (20, 370), (70, 370), (0,0,0), 2)
@@ -137,13 +137,13 @@ class Search():
         putText(self.img, '* = Actual Position', (275, 370), FONT_HERSHEY_PLAIN, 1, (255, 0, 0))
 
         imshow('Search Area', self.img)
-        moveWindow('Search Area', 750, 10) #This moves the image window to the top right so as to infere with your interpreter window less.
+        moveWindow('Search Area', 750, 10) #This moves the image window to the top right so as to interfere with your interpreter window less.
         waitKey(500)
 
     def sailor_final_location(self, num_search_areas:int) -> tuple: 
-        """sailor_final_location() takes in the number of search areas and returns the actual x, y location of the missing sailors""" 
-        """because this is a game where we need to set the answer before the game can begin.
-        I'm a little suprised this method isn't called in __init__... but maybe I'am not thinking in a Pythonic style.
+        """sailor_final_location() takes in the number of search areas and returns the actual x, y location of the missing sailors"""
+
+        """
         An improved version of this game would simulate how a sailor would change position over time, 
         so the current static position set by this method is more like setting a location of a sunken ship or submarine."""
         
@@ -176,9 +176,7 @@ class Search():
         return (x, y)
 
     def calc_search_effectiveness(self) -> None:
-        """Set Decimal search effectiveness value per search area. 
-        I get the sense that this method and the previous will be called in a script or member method to set up the game, 
-        but not for game play."""
+        """Set Decimal search effectiveness value per search area."""
         
         self.sep1 = uniform(0.2, 0.9)
         self.sep2 = uniform(0.2, 0.9)
@@ -186,6 +184,7 @@ class Search():
 
     def conduct_search(self, area_num:int, area_array:ndarray, effectiveness_prob:float) -> tuple:
         """Return search results and list of searched coordinates."""
+
         local_y_range = range(area_array.shape[0])
         local_x_range = range(area_array.shape[1])
 
@@ -209,6 +208,7 @@ class Search():
 
     def revise_target_probs(self) -> None:
         """Update search area(s) probability of finding sailor, based on search effectivness."""
+
         """The mechanism of update is most obvious when one of the sep values is 1 (read 100% effective).
         (1 - sep) means that if you were able to search 100% of the target area and still did not find the target, 
         that target area probability drops to zero."""
@@ -219,131 +219,138 @@ class Search():
         self.p2 = (self.p2 * (1 - self.sep2))/denom
         self.p3 = (self.p3 * (1 - self.sep3))/denom
         
-def chooseZero() -> None:
+def choose_zero() -> None:
+    """Quit game."""
     exit()
 
-def chooseOne( SearchObject: Search) -> tuple:
+def choose_one( SearchObject: Search) -> tuple:
+    """Send both search teams to Area 1, return results and coordinates."""
     results_1, coords_1 = SearchObject.conduct_search(1, SearchObject.sa1, SearchObject.sep1)
     results_2, coords_2 = SearchObject.conduct_search(1, SearchObject.sa1, SearchObject.sep1)
     SearchObject.sep1 = (len(set(coords_1 + coords_2))) / (len(SearchObject.sa1)**2) #As a reminder, set() drops duplicates here.
     SearchObject.sep2 = 0 #The area was not searched so we don't want to update previous prob that sailor would be found. 
     SearchObject.sep3 = 0
-    #return ((results_1, coords_1, results_2, coords_2 ), SearchObject.sep1, SearchObject.sep2, SearchObject.sep3)
     return results_1, coords_1, results_2, coords_2
 
-def chooseTwo( SearchObject: Search) -> tuple:
+def choose_two( SearchObject: Search) -> tuple:
+    """Send both search teams to Area 2, return results and coordinates."""
     results_1, coords_1 = SearchObject.conduct_search(2, SearchObject.sa2, SearchObject.sep2)
     results_2, coords_2 = SearchObject.conduct_search(2, SearchObject.sa2, SearchObject.sep2)
     SearchObject.sep1 = 0
     SearchObject.sep2 = (len(set(coords_1 + coords_2))) / (len(SearchObject.sa2)**2)
     SearchObject.sep3 = 0
-    #return ((results_1, coords_1, results_2, coords_2 ), SearchObject.sep1, SearchObject.sep2, SearchObject.sep3)
+    
     return results_1, coords_1, results_2, coords_2
 
-def chooseThree( SearchObject: Search) -> tuple:
+def choose_three( SearchObject: Search) -> tuple:
+    """Send both search teams to Area 3, return results and coordinates."""
     results_1, coords_1 = SearchObject.conduct_search(3, SearchObject.sa3, SearchObject.sep3)
     results_2, coords_2 = SearchObject.conduct_search(3, SearchObject.sa3, SearchObject.sep3)
     SearchObject.sep1 = 0
     SearchObject.sep2 = 0
     SearchObject.sep3 = (len(set(coords_1 + coords_2))) / (len(SearchObject.sa3)**2)
-    #return ((results_1, coords_1, results_2, coords_2 ), SearchObject.sep1, SearchObject.sep2, SearchObject.sep3)
     return results_1, coords_1, results_2, coords_2
 
 def chooseFour( SearchObject: Search) -> tuple:
+    """Search Areas 1 & 2, return results and coordinates."""
     results_1, coords_1 = SearchObject.conduct_search(1, SearchObject.sa1, SearchObject.sep1)
     results_2, coords_2 = SearchObject.conduct_search(2, SearchObject.sa2, SearchObject.sep2)
     SearchObject.sep3 = 0
-    #return ((results_1, coords_1, results_2, coords_2), SearchObject.sep1, SearchObject.sep2, SearchObject.sep3)
     return results_1, coords_1, results_2, coords_2
 
-def chooseFive( SearchObject: Search) -> tuple:
+def choose_five( SearchObject: Search) -> tuple:
+    """Search Areas 1 & 3, return results and coordinates."""
     results_1, coords_1 = SearchObject.conduct_search(1, SearchObject.sa1, SearchObject.sep1)
     results_2, coords_2 = SearchObject.conduct_search(3, SearchObject.sa3, SearchObject.sep3)
     SearchObject.sep2 = 0
-    #return ((results_1, coords_1, results_2, coords_2), SearchObject.sep1, SearchObject.sep2, SearchObject.sep3)
     return results_1, coords_1, results_2, coords_2
     
-def chooseSix( SearchObject: Search) -> tuple:
+def choose_six( SearchObject: Search) -> tuple:
+    """Search Areas 2 & 3, return results and coordinates."""
     results_1, coords_1 = SearchObject.conduct_search(2, SearchObject.sa2, SearchObject.sep2)
     results_2, coords_2 = SearchObject.conduct_search(3, SearchObject.sa3, SearchObject.sep3)
     SearchObject.sep1 = 0
-    #return ((results_1, coords_1, results_2, coords_2), SearchObject.sep1, SearchObject.sep2, SearchObject.sep3,)
     return results_1, coords_1, results_2, coords_2
 
-def chooseSeven() -> None :
+def choose_seven() -> None :
     """Calls Main() to start a new game."""
     main()
 
-def chooseInvalid() -> None:
+def choose_invalid() -> None:
     """Provides feedback to disapproved user input."""
     print("\nSorry, but that isn't a valid choice.", file=stderr)
 
-def setHurricaneArrival() -> int:
+def set_hurricane_arrival() -> int:
     """Simulating an approaching hurricane, Returns number of rounds the player has to find the sailor before a forced restart of game."""
     searchLimit = uniform(3, 9)
     return int(searchLimit)
 
 def main(): 
-    """This function sets up the game and feeds the Search object the required data for the self.variables/game set up."""
     app = Search('Cape_Python')
+
     # This next bit annoys me and I want to rewrite to accept user input. But my purpose is to read the book so I'll skip for now. (https://pynative.com/python-check-user-input-is-number-or-string/)
     app.draw_map(last_known=(160,290))
     sailor_x, sailor_y = app.sailor_final_location(num_search_areas=3)
+
     #cv.circle did not accept ndarrays, convert to python integers.
     sailor_x = sailor_x.item()
     sailor_y = sailor_y.item()
 
-    #print(type(sailor_x), type(sailor_y) )
+    #Dispaly game header
     print("#" * 66)
     print("-" * 28, "NEW GAME", "-" * 28)
     print("#" * 66)
     print("\nInitial Target (P) Probabilities:")
     print(f"P1 = {app.p1:.3f}, P2 = {app.p2:.3f}, P3 = {app.p3:.3f}")
     
+    #Before main game loop, set max number of turns before hurricane stops game.
     search_num = 0
-    search_limit = setHurricaneArrival()
-    #flag = True
-    #while flag: 
-    while True: #break statement, recursive call to main, and sys.exit are used to stop while loop.
-        app.calc_search_effectiveness() # set randomly to simulate variable sea conditions
+    search_limit = set_hurricane_arrival() 
+
+    #While loop stopped by the following: break statement, recursive call to main, and sys.exit.
+    while True:
+
+        #Set effectiveness randomly to simulate variable sea conditions
+        app.calc_search_effectiveness() 
         draw_menu(search_num)
 
         #Unable to use match-case structure since restricted to python 3.8.5 ... maybe.
         #Use dictionary alternative to long, unreadable if, elif, else structure.
-
         choiceDict = {
-            "0": chooseZero,
-            "1": chooseOne,
-            "2": chooseTwo,
-            "3": chooseThree,
+            "0": choose_zero,
+            "1": choose_one,
+            "2": choose_two,
+            "3": choose_three,
             "4": chooseFour,
-            "5": chooseFive, 
-            "6": chooseSix,
-            "7": chooseSeven #recursive call to main(
+            "5": choose_five, 
+            "6": choose_six,
+            "7": choose_seven #recursive call to main(
         }
 
         choice = input("Choice: ")
-        if choice in choiceDict and choice == "0":
-            chooseZero()
 
-        elif choice in choiceDict and choice != "7": 
-            search_settings_by_choice = choiceDict.get(choice)
-            # Recall that python does not do pass by value/reference, but by assignment. 
-            # So reassign any value changed by the helper funciton.
-            # holdMyTuple, app.sep1, app.sep2, app.sep3 = search_settings_by_choice(app) 
-            # Not necessary, since the helper functions accept the Search instance and can do work directly on the instance member variables.
-            holdMyTuple = search_settings_by_choice(app)
+        #Using the choice Dictionary and helper functions above make this evalauation structure 6 elifs smaller.
+        if choice not in choiceDict:
+            #handle incorrect input
+            choose_invalid()
+    
+            #continue skips the rest of the while loop, so holdMyTuple does not get evaluated.
+            continue
 
-        elif choice in choiceDict and choice == "7":
-            #search_settings_by_choice = choiceDict.get(choice)
-            #search_settings_by_choice(app)  would be usefull if main() checked for existing Search object and skipped creation if provided.
-            chooseSeven()
+        elif choice == "0":
+            #end game
+            choose_zero()
+
+        elif choice == "7":
+            #start new game
+            choose_seven()
 
         else:
-            chooseInvalid()
-            #holdMyTuple = None #Not necessary, not evaluated.
-            continue # we proved and found documenation that continue skips the rest of the while loop, so holdMyTuple does not get evaluated.
+            #return helper function to variable and call helper function by alternate name "search_settings_by_choice"
+            search_settings_by_choice = choiceDict.get(choice)
+            holdMyTuple = search_settings_by_choice(app)
 
+        #Update predictive probablity that sailor will be found in search areas.
         app.revise_target_probs()
 
         print(f"\nSearch {search_num + 1} Effectiveness (E): ")
@@ -356,9 +363,8 @@ def main():
         if holdMyTuple[0] == "Not Found" and holdMyTuple[2] ==  "Not Found":
             search_num += 1
             if search_num == search_limit:
-                #flag = False
-                #continue #break skips the eval of flag...
-                break # preferred to another eval of while loop condition.
+                #Skip another eval of while loop condition.
+                break 
 
             print(f'\nNew Target Probabilities (P) for Search {search_num + 2}:')
             print(f"P1 = {app.p1:.3f}, P2 = {app.p2:.3f}, P3 = {app.p3:.3f}")
@@ -376,10 +382,6 @@ def main():
     The sailor could not be recovered before a hurricane forced the search to end.
     You made {search_num} searches before the hurricane arrived.""")
     main()
-
-    
-
-        
 
 if __name__ == '__main__':
     main()
