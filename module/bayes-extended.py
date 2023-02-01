@@ -13,20 +13,31 @@ from numpy import random, ndarray
 from cv2 import imread, imshow, waitKey, line, putText, rectangle, moveWindow, circle, IMREAD_COLOR, FONT_HERSHEY_PLAIN #, destroyAllWindows
 from os import path
 
-def set_map_file(resource_rel_path:str ) -> str:
+def set_map_const(resource_rel_path:str ) -> str:
     """Takes a relative path for a resource and returns the absolute path for that resource."""
-    #Using an assert in this manner is borderline input/data validation...not by the user, but by the set up of the files. 
-    assert path.exists(resource_rel_path), f"The relative path {resource_rel_path} does not exit."
-    abs_path = path.commonpath([__file__, resource_rel_path])
-    #abs_path = path.dirname(__file__)
-    combo = path.join(abs_path, resource_rel_path)
+    #Using an assert in this manner is borderline input/data validation...not by the user, but by the set up of the resource files. 
+    #assert path.exists(resource_rel_path), f"The relative path {resource_rel_path} does not exit."
+    # To be safe, we will replace with raising a FileNotFoundError. 
+    if path.exists(resource_rel_path):
+        abs_path = path.commonpath([__file__, resource_rel_path])
+        combo = path.join(abs_path, resource_rel_path)
+    else:
+        raise FileNotFoundError
+
     #combo = combo.encode('utf-8') #test
-    assert isinstance(combo, str), f"path.join in set_map_file() has not returned a str."
-    return combo
+    #combo = combo + '.git' #test
+    #assert isinstance(combo, str), f"path.join in set_map_file() has not returned a str."
+    if path.exists(combo):
+        if isinstance(combo, str):
+            return combo
+        else:
+            raise TypeError
+    else:
+        raise FileNotFoundError
 
 rel_path = "resources/cape_python.png"
 #rel_path = "resources/cape_kilamanjaro.png" #test
-MAP_FILE = set_map_file( rel_path )
+MAP_FILE = set_map_const( rel_path )
 #MAP_FILE = '/Users/calebmclaren/learn-algorithms/RealWorldPython/ShipWreckedSailors/resources/cape_python.png'
 
 # SA => Search Area, 50 x 50 pixels in size.
