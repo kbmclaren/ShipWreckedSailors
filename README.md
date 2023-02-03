@@ -22,6 +22,9 @@
 		sympy
 		nose
 		opencv-contrib-python
+		black
+
+	Using black formatter: "lostSailor_env/bin/python -m black module/bayes-extended.py"
 
 ## Project Files
 		
@@ -51,3 +54,6 @@
 * [Validation](https://www.easypythondocs.com/validation.html)
 * [Errors and Exceptions](https://docs.python.org/3/tutorial/errors.html)
 * [Formatting: Line Lengths](https://dev.to/adamlombard/vscode-setting-line-lengths-in-the-black-python-code-formatter-1g62#:~:text=A%20few%20notes%20about%20line,119%20characters%20(79%20for%20docstrings))
+* [opencv reference](https://www.geeksforgeeks.org/reading-image-opencv-using-python/?ref=lbp)
+* [Python Black Formatter](https://marcobelo.medium.com/setting-up-python-black-on-visual-studio-code-5318eba4cd00)
+* [Basic ussage of black python formatter](https://black.readthedocs.io/en/stable/getting_started.html)
