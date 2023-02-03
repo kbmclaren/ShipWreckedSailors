@@ -161,9 +161,7 @@ class Search:
 
         # Draw the legend on the map, Red "+" for last_known, and Blue "*" for actual pos.
         # openCV uses a Blue-Green-Red color format.
-        putText(
-            self.img, "+", (last_known), FONT_HERSHEY_PLAIN, 1, (0, 0, 255)
-        )  
+        putText(self.img, "+", (last_known), FONT_HERSHEY_PLAIN, 1, (0, 0, 255))
         putText(
             self.img,
             "+ = Last Known Position",
@@ -182,9 +180,7 @@ class Search:
         )
         imshow("Search Area", self.img)
         # This moves the image window to the top right so as to interfere with your interpreter window less.
-        moveWindow(
-            "Search Area", 750, 10
-        )  
+        moveWindow("Search Area", 750, 10)
         waitKey(500)
 
     def sailor_final_location(self, num_search_areas: int) -> tuple:
@@ -309,11 +305,9 @@ def choose_one(SearchObject: Search) -> tuple:
         1, SearchObject.sa1, SearchObject.sep1
     )
     # As a reminder, set() drops duplicates here.
-    SearchObject.sep1 = (len(set(coords_1 + coords_2))) / (
-        len(SearchObject.sa1) ** 2
-    )  
+    SearchObject.sep1 = (len(set(coords_1 + coords_2))) / (len(SearchObject.sa1) ** 2)
     # The area was not searched so we don't want to update previous prob that sailor would be found.
-    SearchObject.sep2 = 0  
+    SearchObject.sep2 = 0
     SearchObject.sep3 = 0
     return results_1, coords_1, results_2, coords_2
 
